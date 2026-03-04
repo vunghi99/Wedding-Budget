@@ -1,60 +1,338 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Wedding Budget Planner</title>
-<script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gradient-to-br from-pink-50 to-purple-50 min-h-screen p-6 flex justify-center items-center">
 
-<div class="w-full max-w-3xl bg-white rounded-3xl shadow-2xl p-8 space-y-6">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-<h1 class="text-3xl font-bold text-center">💍 Wedding Budget Planner</h1>
-<p class="text-center text-gray-500">Plan your wedding expenses in USD</p>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
-<div>
-<label class="block font-semibold">Total Budget (USD)</label>
-<input id="budget" type="number" class="w-full border rounded-xl p-3" placeholder="Enter total budget in USD">
-</div>
+<style>
 
-<div>
-<label class="block font-semibold">Venue Cost (USD)</label>
-<input id="venue" type="number" class="w-full border rounded-xl p-3" placeholder="Venue cost">
-</div>
-
-<div>
-<label class="block font-semibold">Catering Cost (USD)</label>
-<input id="catering" type="number" class="w-full border rounded-xl p-3" placeholder="Catering cost">
-</div>
-
-<div>
-<label class="block font-semibold">Photography Cost (USD)</label>
-<input id="photo" type="number" class="w-full border rounded-xl p-3" placeholder="Photography cost">
-</div>
-
-<div class="pt-4">
-<button onclick="calculate()" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold p-4 rounded-2xl transition">Calculate Remaining Budget</button>
-</div>
-
-<div class="text-center text-xl font-semibold" id="result"></div>
-
-</div>
-
-<script>
-function calculate(){
-let budget = Number(document.getElementById('budget').value || 0);
-let venue = Number(document.getElementById('venue').value || 0);
-let catering = Number(document.getElementById('catering').value || 0);
-let photo = Number(document.getElementById('photo').value || 0);
-
-let totalExpense = venue + catering + photo;
-let remaining = budget - totalExpense;
-
-document.getElementById('result').innerText =
-"Remaining Budget: " + remaining.toLocaleString('en-US', {style:'currency', currency:'USD'});
+:root{
+--bg:#0c0c18;
+--card:rgba(22,22,42,0.85);
+--card-hover:rgba(28,28,52,0.95);
+--input-bg:rgba(255,255,255,0.04);
+--t1:#eeeef5;
+--t2:#9595ad;
+--t3:#5a5a72;
 }
-</script>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+border-radius:0!important;
+}
+
+body{
+font-family:'Inter',sans-serif;
+background:var(--bg);
+color:var(--t1);
+min-height:100vh;
+font-size:12px;
+line-height:1.45;
+}
+
+.hdr{
+text-align:center;
+padding:10px 0 8px;
+}
+
+.hdr h1{
+font-size:1.25rem;
+font-weight:800;
+background:linear-gradient(135deg,#667eea,#764ba2,#f472b6);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+background-clip:text;
+}
+
+.hdr p{
+color:var(--t3);
+font-size:.65rem;
+margin-top:1px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(12,1fr);
+gap:1px;
+}
+
+.sz-s{grid-column:span 3;}
+.sz-m{grid-column:span 4;}
+.sz-l{grid-column:span 6;}
+.sz-xl{grid-column:span 8;}
+
+.tile{
+background:var(--card);
+padding:10px 12px;
+transition:.25s;
+}
+
+.tile:hover{
+background:var(--card-hover);
+transform:translateY(-1px);
+}
+
+.hero-lbl{
+font-size:.58rem;
+text-transform:uppercase;
+letter-spacing:1px;
+color:var(--t3);
+font-weight:600;
+margin-bottom:3px;
+}
+
+.hero-val{
+font-size:1.15rem;
+font-weight:800;
+}
+
+.hero-sub{
+font-size:.6rem;
+color:var(--t2);
+margin-top:1px;
+}
+
+.budget-inp{
+background:transparent;
+border:none;
+border-bottom:1px dashed rgba(102,126,234,.35);
+color:#667eea;
+font-size:1.15rem;
+font-weight:800;
+width:120px;
+font-family:inherit;
+}
+
+.budget-inp:focus{
+outline:none;
+border-bottom-color:#667eea;
+}
+
+.tile-title{
+font-size:.72rem;
+font-weight:700;
+margin-bottom:6px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+font-size:.65rem;
+}
+
+th{
+color:var(--t3);
+text-transform:uppercase;
+font-size:.55rem;
+padding:4px;
+border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+td{
+padding:4px;
+}
+
+input{
+background:var(--input-bg);
+border:none;
+color:var(--t1);
+font-family:inherit;
+font-size:.65rem;
+padding:2px 4px;
+}
+
+.ftr{
+text-align:center;
+padding:8px;
+color:var(--t3);
+font-size:.55rem;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="hdr">
+<h1>Wedding Budget Planner</h1>
+<p>share</p>
+</div>
+
+<div class="grid">
+
+<div class="tile sz-s">
+<div class="hero-lbl">Total Budget</div>
+
+<input type="text" class="budget-inp" value="800">
+
+<div class="hero-sub">USD</div>
+</div>
+
+<div class="tile sz-s">
+<div class="hero-lbl">Estimated Total Cost</div>
+<div class="hero-val">0</div>
+<div class="hero-sub">0.0% of budget</div>
+</div>
+
+<div class="tile sz-l">
+<div class="tile-title">Budget Allocation</div>
+<canvas id="donut"></canvas>
+</div>
+
+<div class="tile sz-m">
+<div class="tile-title">Funding Sources</div>
+
+<table>
+
+<thead>
+<tr>
+<th style="text-align:left">Source</th>
+<th>Estimated</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>Existing Savings</td>
+<td><input value="400"></td>
+</tr>
+
+<tr>
+<td>Loan from Parents</td>
+<td><input value="160"></td>
+</tr>
+
+<tr>
+<td>Loan from Friends</td>
+<td><input value="80"></td>
+</tr>
+
+<tr>
+<td>Expected Bonus</td>
+<td><input value="160"></td>
+</tr>
+
+<tr>
+<td>Pay Later (Debt)</td>
+<td><input value="160"></td>
+</tr>
+
+<tr>
+<td>Other Income</td>
+<td><input value="80"></td>
+</tr>
+
+</tbody>
+
+<tfoot>
+<tr>
+<td><strong>Total</strong></td>
+<td>1,040</td>
+</tr>
+</tfoot>
+
+</table>
+</div>
+
+<div class="tile sz-m">
+
+<div class="tile-title">Expense Summary</div>
+
+<table>
+
+<thead>
+<tr>
+<th style="text-align:left">Category</th>
+<th>Weight</th>
+<th>Budget</th>
+<th>Estimated</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>Reception Venue</td>
+<td>0%</td>
+<td>0</td>
+<td>0</td>
+</tr>
+
+<tr>
+<td>Outfit & Makeup</td>
+<td>0%</td>
+<td>0</td>
+<td>0</td>
+</tr>
+
+<tr>
+<td>Flowers & Decoration</td>
+<td>0%</td>
+<td>0</td>
+<td>0</td>
+</tr>
+
+<tr>
+<td>Transportation</td>
+<td>0%</td>
+<td>0</td>
+<td>0</td>
+</tr>
+
+<tr>
+<td>Photography & Video</td>
+<td>0%</td>
+<td>0</td>
+<td>0</td>
+</tr>
+
+<tr>
+<td>Gifts</td>
+<td>0%</td>
+<td>0</td>
+<td>0</td>
+</tr>
+
+<tr>
+<td>Music</td>
+<td>0%</td>
+<td>0</td>
+<td>0</td>
+</tr>
+
+<tr>
+<td>Wedding Rings</td>
+<td>0%</td>
+<td>0</td>
+<td>0</td>
+</tr>
+
+<tr>
+<td>Engagement Ceremony</td>
+<td>0%</td>
+<td>0</td>
+<td>0</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<div class="ftr">
+Wedding Budget Planner
+</div>
 
 </body>
 </html>
